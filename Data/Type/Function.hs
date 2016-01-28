@@ -16,6 +16,8 @@ Portability : non-portable (GHC only)
 module Data.Type.Function (
 
       Function
+    , type (:->)
+
     , F
     , C
     , ApplyFunction
@@ -155,7 +157,7 @@ type instance ApInstance ('Just f) ('Just x) = 'Just (f `At` x)
 type Bind = F BindProxy
 infixl 1 :>>=
 type mx :>>= f = Bind `At` mx `At` f
-data BindProxy (mx :: m s) (k :: Function x (m t)) (p :: Proxy (m t))
+data BindProxy (mx :: m s) (k :: Function s (m t)) (p :: Proxy (m t))
 type instance EvalFunction (BindProxy mx k) = BindInstance mx k
 
 type family BindInstance (mx :: f s) (k :: Function s (m t)) :: m t
