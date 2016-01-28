@@ -111,6 +111,19 @@ type instance EvalFunction (FmapProxy f x) = FmapInstance f x
 type family FmapInstance (g :: Function s t) (x :: f s) :: f t
 type instance FmapInstance g ('Just x) = 'Just (g `At` x)
 type instance FmapInstance g 'Nothing = 'Nothing
+type instance FmapInstance g '[] = '[]
+type instance FmapInstance g (x ': xs) = g `At` x ': FmapInstance g xs
+
+type Pure = F PureProxy
+-- Since the applicative functor f cannot be determined by the parameter x
+-- alone, we throw in a Proxy.
+data PureProxy (pf :: Proxy f) (x :: k) (p :: Proxy (f k))
+type instance EvalFunction (PureProxy ('Proxy :: Proxy f) (x :: k)) =
+    PureInstance f x
+
+type family PureInstance (f :: Type -> Type) (x :: k) :: f k
+type instance PureInstance Maybe x = 'Just x
+type instance PureInstance [] x = '[x]
 
 type Ap = F ApProxy
 infixl 4 :<*>
@@ -123,3 +136,13 @@ type instance ApInstance 'Nothing 'Nothing = 'Nothing
 type instance ApInstance ('Just f) 'Nothing = 'Nothing
 type instance ApInstance 'Nothing ('Just x) = 'Nothing
 type instance ApInstance ('Just f) ('Just x) = 'Just (f `At` x)
+
+type Bind = F BindProxy
+infixl 1 :>>=
+type mx :>>= f = Bind `At` mx `At` f
+data BindProxy (mx :: m s) (k :: Function x (m t)) (p :: Proxy (m t))
+type instance EvalFunction (BindProxy mx k) = BindInstance mx k
+
+type family BindInstance (mx :: f s) (k :: Function s (m t)) :: m t
+type instance BindInstance 'Nothing k = 'Nothing
+type instance BindInstance ('Just x) k = k `At` x
