@@ -40,6 +40,17 @@ idioms even when working with types:
 = 'Nothing
 ```
 
+If you grab my [Character kind patch](https://ghc.haskell.org/trac/ghc/ticket/11342)
+then you can get a hold of some [type-level monadic parsers](./Examples/Parser.hs):
+
+```Haskell
+:kind! RunParser `At` ((Const `At` 'True) :<$> ParserCharacter) `At` "hello"
+= 'Just '( 'True, "ello" )
+
+:kind! RunParser `At` ((Const `At` 'True) :<$> ParserCharacter) `At` ""
+= 'Nothing
+```
+
 There's some related, but far more complicated and awkward work at
 [type-lambda](https://www.github.com/avieth/type-lambda), in which type-level
 functions are defined formally, with support for pattern matching.
