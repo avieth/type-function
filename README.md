@@ -3,7 +3,7 @@
 This package gives a construction which essentially promotes the arrow type,
 unifying type constructors and promoted data constructors with type families
 into one kind: `Function s t` alias `s :-> t`. It requires GHC 8.0, because
-it uses GADT promotion and type families to compute kinds.
+it uses type families to compute kinds.
 
 Since type families are not types (they cannot appear partially applied) they
 are proxied by actual datatypes. A simple function like `id` at the type level

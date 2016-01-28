@@ -40,6 +40,8 @@ module Data.Type.Function (
 
     , Swap
 
+    , Uncurry
+
     , Fmap
     , FmapInstance
     , type (:<$>)
@@ -133,6 +135,10 @@ type instance EvalFunction (FlipProxy f y x) = f `At` x `At` y
 type Swap = F SwapProxy
 data SwapProxy (tuple :: (k, l)) (p :: Proxy (l, k))
 type instance EvalFunction (SwapProxy '(x, y)) = '(y, x)
+
+type Uncurry = F UncurryProxy
+data UncurryProxy (f :: s :-> t :-> r) (x :: (s, t)) (p :: Proxy r)
+type instance EvalFunction (UncurryProxy f '(x, y)) = f `At` x `At` y
 
 type Fmap = F FmapProxy
 infixl 4 :<$>
