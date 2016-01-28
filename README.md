@@ -34,7 +34,7 @@ idioms even when working with types:
 
 ```Haskell
 *Data.Type.Function> :kind! Const :<$> 'Just 42 :<*> 'Just '()
-= 'Just 43
+= 'Just 42
 
 *Data.Type.Function> :kind! Const :<$> 'Just 42 :<*> 'Nothing
 = 'Nothing

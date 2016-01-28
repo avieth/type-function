@@ -33,6 +33,10 @@ module Data.Type.Function (
     , Id
     , Const
 
+    , Flip
+
+    , Swap
+
     , Fmap
     , FmapInstance
     , type (:<$>)
@@ -119,6 +123,14 @@ type Const = F ConstProxy
 data ConstProxy (x :: k) (y :: l) (p :: Proxy k)
 type instance EvalFunction (ConstProxy x y) = x
 
+type Flip = F FlipProxy
+data FlipProxy (f :: s :-> t :-> r) (y :: t) (x :: s) (p :: Proxy r)
+type instance EvalFunction (FlipProxy f y x) = f `At` x `At` y
+
+type Swap = F SwapProxy
+data SwapProxy (tuple :: (k, l)) (p :: Proxy (l, k))
+type instance EvalFunction (SwapProxy '(x, y)) = '(y, x)
+
 type Fmap = F FmapProxy
 infixl 4 :<$>
 type f :<$> x = Fmap `At` f `At` x
@@ -126,6 +138,9 @@ data FmapProxy (g :: Function s t) (x :: f s) (p :: Proxy (f t))
 type instance EvalFunction (FmapProxy f x) = FmapInstance f x
 
 type family FmapInstance (g :: Function s t) (x :: f s) :: f t
+type instance FmapInstance g ('Constructor f) = g :. 'Constructor f
+type instance FmapInstance g ('Family f) = g :. 'Family f
+type instance FmapInstance g '(x, y) = '(x, g `At` y)
 type instance FmapInstance g ('Just x) = 'Just (g `At` x)
 type instance FmapInstance g 'Nothing = 'Nothing
 type instance FmapInstance g '[] = '[]
