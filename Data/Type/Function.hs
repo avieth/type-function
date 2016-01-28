@@ -31,6 +31,21 @@ module Data.Type.Function (
     , Id
     , Const
 
+    , Fmap
+    , FmapInstance
+    , type (:<$>)
+
+    , Pure
+    , PureInstance
+
+    , Ap
+    , ApInstance
+    , type (:<*>)
+
+    , Bind
+    , BindInstance
+    , type (:>>=)
+
     ) where
 
 import Data.Kind
