@@ -43,6 +43,19 @@ type instance PureInstance Parser t = 'Parser (C 'Just :. (C '(,) `At` t))
 type instance ApInstance (mf :: Parser (s :-> t)) (mx :: Parser s) =
     Bind `At` mf `At` ((Fmap `At` ApplyTuple) :. (Flip `At` Fmap `At` mx) :. C '(,))
 
+-- Parser is an alternative.
+type instance AltInstance (left :: Parser t) (right :: Parser t) = 'Parser (
+         (AnalyseEither `At` C 'Just `At` (RunParser `At` right))
+      :. MakeEither
+      -- Pass the input through so that we can re-use it if necessary.
+      :. (Passthrough `At` (RunParser `At` left))
+    )
+
+type MakeEither = F MakeEitherProxy
+data MakeEitherProxy (tuple :: (Maybe k, l)) (p :: Proxy (Either k l))
+type instance EvalFunction (MakeEitherProxy '( 'Just x, y )) = 'Left x
+type instance EvalFunction (MakeEitherProxy '( 'Nothing, y )) = 'Right y
+
 -- Parser is a monad.
 type instance BindInstance (p :: Parser t) k = ParserJoin `At` (Fmap `At` k `At` p)
 

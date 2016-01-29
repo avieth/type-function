@@ -44,6 +44,10 @@ module Data.Type.Function (
 
     , ApplyTuple
 
+    , Passthrough
+
+    , AnalyseEither
+
     , Fmap
     , FmapInstance
     , type (:<$>)
@@ -54,6 +58,10 @@ module Data.Type.Function (
     , Ap
     , ApInstance
     , type (:<*>)
+
+    , Alt
+    , AltInstance
+    , type (:<|>)
 
     , Bind
     , BindInstance
@@ -146,6 +154,15 @@ type ApplyTuple = F ApplyTupleProxy
 data ApplyTupleProxy (tuple :: (s :-> t, s)) (p :: Proxy t)
 type instance EvalFunction (ApplyTupleProxy '(f, x)) = f `At` x
 
+type Passthrough = F PassthroughProxy
+data PassthroughProxy (f :: (s :-> t)) (x :: s) (p :: Proxy (t, s))
+type instance EvalFunction (PassthroughProxy f x) = '(f `At` x, x)
+
+type AnalyseEither = F AnalyseEitherProxy
+data AnalyseEitherProxy (left :: k :-> t) (right :: l :-> t) (e :: Either k l) (p :: Proxy t)
+type instance EvalFunction (AnalyseEitherProxy left right ('Left x)) = left `At` x
+type instance EvalFunction (AnalyseEitherProxy left right ('Right y)) = right `At` y
+
 type Fmap = F FmapProxy
 infixl 4 :<$>
 type f :<$> x = Fmap `At` f `At` x
@@ -183,6 +200,16 @@ type instance ApInstance 'Nothing 'Nothing = 'Nothing
 type instance ApInstance ('Just f) 'Nothing = 'Nothing
 type instance ApInstance 'Nothing ('Just x) = 'Nothing
 type instance ApInstance ('Just f) ('Just x) = 'Just (f `At` x)
+
+type Alt = F AltProxy
+infixl 3 :<|>
+type ma :<|> mb = Alt `At` ma `At` mb
+data AltProxy (ma :: f a) (mb :: f a) (p :: Proxy (f a))
+type instance EvalFunction (AltProxy ma mb) = AltInstance ma mb
+
+type family AltInstance (ma :: f a) (mb :: f a) :: f a
+type instance AltInstance 'Nothing b = b
+type instance AltInstance ('Just a) b = 'Just a
 
 type Bind = F BindProxy
 infixl 1 :>>=
